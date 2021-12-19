@@ -51,7 +51,7 @@ public class CardListView extends Div implements AfterNavigationObserver {
         header.getThemeList().add("spacing-s");
 
         Span name = new Span(person.getName());
-        name.addClassName("name");
+        name.addClassName("name"); // class name 是否指定一种格式？
         Span date = new Span(person.getDate());
         date.addClassName("date");
         header.add(name, date);

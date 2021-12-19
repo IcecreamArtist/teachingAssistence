@@ -7,6 +7,7 @@ import com.example.application.views.helloworld.HelloWorldView;
 import com.example.application.views.imagelist.ImageListView;
 import com.example.application.views.masterdetail.MasterDetailView;
 import com.example.application.views.personform.PersonFormView;
+import com.example.application.views.schedule.ScheduleView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -117,6 +118,8 @@ public class MainLayout extends AppLayout {
                 new MenuItemInfo("Hello World", "la la-globe", HelloWorldView.class), //
 
                 new MenuItemInfo("About", "la la-file", AboutView.class), //
+
+                new MenuItemInfo("Course Schedule","la la-user", ScheduleView.class), //
 
                 new MenuItemInfo("Person Form", "la la-user", PersonFormView.class), //
 

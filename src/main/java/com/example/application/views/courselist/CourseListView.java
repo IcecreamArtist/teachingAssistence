@@ -1,9 +1,14 @@
 package com.example.application.views.courselist;
 
 import com.example.application.data.entity.Course;
+import com.example.application.data.entity.History;
+import com.example.application.data.entity.Selected;
 import com.example.application.data.service.CourseMapper;
+import com.example.application.data.service.HistoryMapper;
+import com.example.application.data.service.SelectedMapper;
 import com.example.application.utils.MybatisUtils;
 import com.example.application.views.MainLayout;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
@@ -17,8 +22,11 @@ import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.apache.ibatis.session.SqlSession;
+import com.vaadin.flow.component.notification.Notification;
 
 import java.util.List;
+
+import static java.sql.Types.NULL;
 
 @PageTitle("Course List")
 @Route(value = "course-list", layout = MainLayout.class)
@@ -36,9 +44,14 @@ public class CourseListView extends Div implements AfterNavigationObserver {
     }
 
     private HorizontalLayout createCard(Course course) {
-        HorizontalLayout card = new HorizontalLayout();
+        HorizontalLayout realCard = new HorizontalLayout();
+        realCard.addClassName("card");
+        realCard.getThemeList().add("spacing-s");
+
+        VerticalLayout card = new VerticalLayout();
         card.addClassName("card");
         card.setSpacing(false);
+        card.setPadding(false);
         card.getThemeList().add("spacing-s");
 
         HorizontalLayout header = new HorizontalLayout();
@@ -49,7 +62,19 @@ public class CourseListView extends Div implements AfterNavigationObserver {
         Span name = new Span(course.getName());
         name.addClassName("name");
         Span teacher = new Span(course.getTeacher());
+        teacher.addClassName("date");
         header.add(name,teacher);
+
+        Span prerequiste1 = new Span(course.getPrerequisite11());
+        prerequiste1.addClassName("post");
+        Span prerequiste2 = new Span(course.getPrerequisite22());
+        prerequiste2.addClassName("post");
+
+        HorizontalLayout prerequiste = new HorizontalLayout();
+        prerequiste.addClassName("test"); // test for class name,估计跟样式有关
+        prerequiste.setSpacing(false);
+        prerequiste.getThemeList().add("spacing-s");
+        prerequiste.add(prerequiste1,prerequiste2);
 
         HorizontalLayout actions = new HorizontalLayout();
         actions.addClassName("actions");
@@ -57,13 +82,107 @@ public class CourseListView extends Div implements AfterNavigationObserver {
         actions.getThemeList().add("spacing-s");
 
         Icon likeIcon = VaadinIcon.HEART.create();
-        likeIcon.addClassName("credit");
+        likeIcon.addClassName("icon");
         Span likes = new Span(String.valueOf(course.getCredit()));
-        likes.addClassName("credit");
-        actions.add(likeIcon, likes);
+        likes.addClassName("credit"); // test for class name
+        Icon weekDayIcon = VaadinIcon.COMMENT.create();
+        weekDayIcon.addClassName("icon");
+        Span weekDay = new Span(course.getWeekday());
+        weekDay.addClassName("weekday");
+        Icon timeIcon = VaadinIcon.CONNECT.create();
+        timeIcon.addClassName("icon");
+        Span tim = new Span(String.valueOf(course.getTime()));
+        tim.addClassName("time");
 
-        card.add(header,actions);
-        return card;
+        actions.add(likeIcon, likes, weekDayIcon, weekDay, timeIcon, tim);
+
+        card.add(header, prerequiste, actions);
+
+        int isSelected = course.getSelected();
+        String str; // 这门课的状态：是否存在于已选课表中
+        if(isSelected == 1) str = "Cancel";
+        else str = "Choose";
+        Button btn = new Button(str);
+        btn.addClickListener(e->{
+            if(modifyCourse(course)) Notification.show("Successful");
+            else Notification.show("Fail");
+        });
+        btn.setSizeUndefined();
+        realCard.add(card, btn);
+        return realCard;
+    }
+
+    boolean modifyCourse(Course course) {
+        // 如果是删除课程，随便删
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+        SelectedMapper selectedMapper = sqlSession.getMapper(SelectedMapper.class);
+
+        if(course.getSelected() == 1) {
+            // 先找到
+            selectedMapper.deleteSelected(course.getId());
+            sqlSession.commit();
+            sqlSession.close();
+            return true;
+        }
+
+        // 先考虑学分够不够
+        Selected tmp = selectedMapper.getSelectedById(0);
+        int credit = tmp.getCredit();
+        // 若不够，返回失败
+        if (credit < course.getCredit()) {
+            sqlSession.close();
+            return false;
+        }
+
+        // 再考虑history中是否存在prerequisite
+        if (course.getPrerequisite11() != null) {
+            // 若存在prerequisite
+            SqlSession sqlSession1 = MybatisUtils.getSqlSession();
+            HistoryMapper historyMapper = sqlSession1.getMapper(HistoryMapper.class);
+
+            History history = historyMapper.getHistoryById(course.getPrerequisite1());
+            // 如果查不到会发生什么???
+            if (history == null) {
+                sqlSession1.close();
+                sqlSession.close();
+                return false;
+            }
+            if (course.getPrerequisite22() != null) {
+                // 存在第二个prerequisite
+                history = historyMapper.getHistoryById(course.getPrerequisite2());
+                if(history == null) {
+                    sqlSession1.close();
+                    sqlSession.close();
+                    return false;
+                }
+            }
+            sqlSession1.close();
+        }
+
+        // 接下来考虑是否与selected有时间冲突
+        Selected selected = selectedMapper.getSelectedByTime(course.getWeekday(),course.getTime());
+        if (selected != null) {
+            sqlSession.close();
+            return false;
+        }
+
+        // 更新courses里面的状态 & 插入到selected里面
+        course.setSelected(1);
+
+        SqlSession sqlSession2 = MybatisUtils.getSqlSession();
+        CourseMapper courseMapper = sqlSession2.getMapper(CourseMapper.class);
+        courseMapper.updateCourse(course);
+
+        sqlSession2.commit();
+        sqlSession2.close();
+
+        selected = new Selected(course.getId(),course.getName(),course.getTeacher(),course.getWeekday(),course.getCredit(),course.getTime());
+        selectedMapper.addSelected(selected);
+
+        selectedMapper.updateCredit(course.getCredit());
+        sqlSession.commit();
+        sqlSession.close();
+        return true;
     }
 
     @Override

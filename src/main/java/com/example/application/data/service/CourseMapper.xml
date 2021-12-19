@@ -9,6 +9,14 @@
     <select id="getCourseList" resultType="com.example.application.data.entity.Course">
         select * from courses.courses
     </select>
+    
+    <select id="getCourseById" parameterType="int" resultType="com.example.application.data.entity.Course">
+        select * from courses.courses where id = #{id}
+    </select>
+
+    <update id="updateCourse" parameterType="com.example.application.data.entity.Course">
+        update courses.courses set selected=#{selected} where id = #{id}
+    </update>
 
 </mapper>
 

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 命名空间绑定一个对应的mapper接口-->
+<mapper namespace="com.example.application.data.service.SelectedMapper">
+
+    <!--查询-->
+    <select id="getSelectedList" resultType="com.example.application.data.entity.Selected">
+        select * from courses.selected
+    </select>
+
+    <select id="getSelectedById" parameterType="int" resultType="com.example.application.data.entity.Selected">
+        select * from courses.selected where id = #{id}
+    </select>
+
+    <select id="getSelectedByTime" parameterType="map" resultType="com.example.application.data.entity.Selected">
+        select * from courses.selected where weekday = #{weekday} and time = #{time}
+    </select>
+
+    <!--修改现有学分-->
+    <update id="updateCredit" parameterType="int">
+        update courses.selected set credit = selected.credit - #{credit} where id = 0
+    </update>
+
+    <!--对象中的属性-->
+    <insert id="addSelected" parameterType="com.example.application.data.entity.Selected">
+        insert into courses.selected (id, name, teacher, weekday, credit, time) values (#{id},#{name},#{teacher},#{weekday},#{credit},#{time})
+    </insert>
+
+    <update id="deleteSelected" parameterType="int">
+        delete from courses.selected where id = #{id}
+    </update>
+</mapper>
+
+<!--接口实现类-->

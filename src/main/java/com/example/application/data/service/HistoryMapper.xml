@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 命名空间绑定一个对应的mapper接口-->
+<mapper namespace="com.example.application.data.service.HistoryMapper">
+
+    <!--查询-->
+    <select id="getHistoryList" resultType="com.example.application.data.entity.History">
+        select * from courses.history
+    </select>
+
+    <select id="getHistoryById" parameterType="int" resultType="com.example.application.data.entity.History">
+        select * from courses.history where id = #{id}
+    </select>
+
+</mapper>
+<!--接口实现类-->

@@ -8,22 +8,28 @@ public class Course {
     private String weekday;
     private int credit;
     private int prerequisite1;
+    private String prerequisite11;
+    private int prerequisite2;
+    private String prerequisite22;
     private int time;
-    private int Prerequisite2;
+    private int selected;
 
     public Course() {
 
     }
 
-    public Course(int id, String name, String teacher, String weekday, int credit, int prerequisite1, int time, int prerequisite2) {
+    public Course(int id, String name, String teacher, String weekday, int credit, int prerequisite1, String prerequisite11, int prerequisite2, String prerequisite22, int time, int selected) {
         this.id = id;
         this.name = name;
         this.teacher = teacher;
         this.weekday = weekday;
         this.credit = credit;
         this.prerequisite1 = prerequisite1;
+        this.prerequisite11 = prerequisite11;
+        this.prerequisite2 = prerequisite2;
+        this.prerequisite22 = prerequisite22;
         this.time = time;
-        Prerequisite2 = prerequisite2;
+        this.selected = selected;
     }
 
     public int getId() {
@@ -74,6 +80,28 @@ public class Course {
         this.prerequisite1 = prerequisite1;
     }
 
+    public int getPrerequisite2() {return prerequisite2;}
+
+    public void setPrerequisite2(int prerequisite2) {
+        this.prerequisite2 = prerequisite2;
+    }
+
+    public String getPrerequisite11() {
+        return prerequisite11;
+    }
+
+    public void setPrerequisite11(String prerequisite11) {
+        this.prerequisite11 = prerequisite11;
+    }
+
+    public String getPrerequisite22() {
+        return prerequisite22;
+    }
+
+    public void setPrerequisite22(String prerequisite22) {
+        this.prerequisite22 = prerequisite22;
+    }
+
     public int getTime() {
         return time;
     }
@@ -82,13 +110,9 @@ public class Course {
         this.time = time;
     }
 
-    public int getPrerequisite2() {
-        return Prerequisite2;
-    }
+    public int getSelected() {return selected;}
 
-    public void setPrerequisite2(int prerequisite2) {
-        Prerequisite2 = prerequisite2;
-    }
+    public void setSelected(int selected) {this.selected = selected;}
 
     @Override
     public String toString() {
@@ -100,7 +124,8 @@ public class Course {
                 ", credit=" + credit +
                 ", prerequisite1=" + prerequisite1 +
                 ", time=" + time +
-                ", Prerequisite2=" + Prerequisite2 +
+                ", prerequisite2=" + prerequisite2 +
+                ", selected=" + selected +
                 '}';
     }
 }

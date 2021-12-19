@@ -16,5 +16,7 @@
     </environments>
     <mappers>
         <mapper resource="com/example/application/data/service/CourseMapper.xml"/>
+        <mapper resource="com/example/application/data/service/SelectedMapper.xml"/>
+        <mapper resource="com/example/application/data/service/HistoryMapper.xml"/>
     </mappers>
 </configuration>
