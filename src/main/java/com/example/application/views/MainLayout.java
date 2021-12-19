@@ -2,6 +2,7 @@ package com.example.application.views;
 
 import com.example.application.views.about.AboutView;
 import com.example.application.views.cardlist.CardListView;
+import com.example.application.views.courselist.CourseListView;
 import com.example.application.views.helloworld.HelloWorldView;
 import com.example.application.views.imagelist.ImageListView;
 import com.example.application.views.masterdetail.MasterDetailView;
@@ -85,7 +86,7 @@ public class MainLayout extends AppLayout {
     }
 
     private Component createDrawerContent() {
-        H2 appName = new H2("My App");
+        H2 appName = new H2("Teaching Administration Management");
         appName.addClassNames("flex", "items-center", "h-xl", "m-0", "px-m", "text-m");
 
         com.vaadin.flow.component.html.Section section = new com.vaadin.flow.component.html.Section(appName,
@@ -120,6 +121,8 @@ public class MainLayout extends AppLayout {
                 new MenuItemInfo("Person Form", "la la-user", PersonFormView.class), //
 
                 new MenuItemInfo("Card List", "la la-list", CardListView.class), //
+
+                new MenuItemInfo("Course List", "la la-list", CourseListView.class), //
 
                 new MenuItemInfo("Master-Detail", "la la-columns", MasterDetailView.class), //
 
