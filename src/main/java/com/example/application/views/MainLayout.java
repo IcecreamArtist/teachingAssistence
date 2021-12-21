@@ -115,17 +115,17 @@ public class MainLayout extends AppLayout {
 
     private List<RouterLink> createLinks() {
         MenuItemInfo[] menuItems = new MenuItemInfo[]{ //
-                new MenuItemInfo("Hello World", "la la-globe", HelloWorldView.class), //
+                new MenuItemInfo("Personal Information", "la la-globe", HelloWorldView.class), //
 
-                new MenuItemInfo("About", "la la-file", AboutView.class), //
+                new MenuItemInfo("Learned History", "la la-file", AboutView.class), //
 
-                new MenuItemInfo("Course Schedule","la la-user", ScheduleView.class), //
+                new MenuItemInfo("Course List", "la la-list", CourseListView.class), //
+
+                new MenuItemInfo("Selected Courses","la la-list", ScheduleView.class), //
 
                 new MenuItemInfo("Person Form", "la la-user", PersonFormView.class), //
 
-                new MenuItemInfo("Card List", "la la-list", CardListView.class), //
-
-                new MenuItemInfo("Course List", "la la-list", CourseListView.class), //
+                new MenuItemInfo("Master List", "la la-user", CardListView.class), //
 
                 new MenuItemInfo("Master-Detail", "la la-columns", MasterDetailView.class), //
 

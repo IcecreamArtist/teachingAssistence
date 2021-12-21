@@ -9,6 +9,7 @@ import com.example.application.data.service.SelectedMapper;
 import com.example.application.utils.MybatisUtils;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
@@ -25,8 +26,6 @@ import org.apache.ibatis.session.SqlSession;
 import com.vaadin.flow.component.notification.Notification;
 
 import java.util.List;
-
-import static java.sql.Types.NULL;
 
 @PageTitle("Course List")
 @Route(value = "course-list", layout = MainLayout.class)
@@ -99,31 +98,28 @@ public class CourseListView extends Div implements AfterNavigationObserver {
         card.add(header, prerequiste, actions);
 
         int isSelected = course.getSelected();
-        String str; // 这门课的状态：是否存在于已选课表中
-        if(isSelected == 1) str = "Cancel";
-        else str = "Choose";
-        Button btn = new Button(str);
+        Button btn = new Button("Add");
+        if(isSelected == 1) btn.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
+        else btn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
         btn.addClickListener(e->{
-            if(modifyCourse(course)) Notification.show("Successful");
-            else Notification.show("Fail");
+            if (isSelected == 0) {
+                int ret = modifyCourse(course);
+                if (ret == 1) Notification.show("Successfully added");
+                else if(ret == 2) Notification.show("Prerequisites not satisfied");
+                else if(ret == 3) Notification.show("Curriculum conflict");
+                else Notification.show("No enough credit"); // 0
+            } else {
+                Notification.show("This course has already been selected");
+            }
         });
-        btn.setSizeUndefined();
         realCard.add(card, btn);
         return realCard;
     }
 
-    boolean modifyCourse(Course course) {
-        // 如果是删除课程，随便删
+    int modifyCourse(Course course) {
         SqlSession sqlSession = MybatisUtils.getSqlSession();
         SelectedMapper selectedMapper = sqlSession.getMapper(SelectedMapper.class);
-
-        if(course.getSelected() == 1) {
-            // 先找到
-            selectedMapper.deleteSelected(course.getId());
-            sqlSession.commit();
-            sqlSession.close();
-            return true;
-        }
 
         // 先考虑学分够不够
         Selected tmp = selectedMapper.getSelectedById(0);
@@ -131,7 +127,7 @@ public class CourseListView extends Div implements AfterNavigationObserver {
         // 若不够，返回失败
         if (credit < course.getCredit()) {
             sqlSession.close();
-            return false;
+            return 0;
         }
 
         // 再考虑history中是否存在prerequisite
@@ -145,7 +141,7 @@ public class CourseListView extends Div implements AfterNavigationObserver {
             if (history == null) {
                 sqlSession1.close();
                 sqlSession.close();
-                return false;
+                return 2;
             }
             if (course.getPrerequisite22() != null) {
                 // 存在第二个prerequisite
@@ -153,7 +149,7 @@ public class CourseListView extends Div implements AfterNavigationObserver {
                 if(history == null) {
                     sqlSession1.close();
                     sqlSession.close();
-                    return false;
+                    return 2;
                 }
             }
             sqlSession1.close();
@@ -163,7 +159,7 @@ public class CourseListView extends Div implements AfterNavigationObserver {
         Selected selected = selectedMapper.getSelectedByTime(course.getWeekday(),course.getTime());
         if (selected != null) {
             sqlSession.close();
-            return false;
+            return 3;
         }
 
         // 更新courses里面的状态 & 插入到selected里面
@@ -182,7 +178,7 @@ public class CourseListView extends Div implements AfterNavigationObserver {
         selectedMapper.updateCredit(course.getCredit());
         sqlSession.commit();
         sqlSession.close();
-        return true;
+        return 1;
     }
 
     @Override

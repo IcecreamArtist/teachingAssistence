@@ -1,33 +1,38 @@
 package com.example.application.views.helloworld;
 
+import com.example.application.data.service.SelectedMapper;
+import com.example.application.utils.MybatisUtils;
 import com.example.application.views.MainLayout;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
+import org.apache.ibatis.session.SqlSession;
 
-@PageTitle("Hello World")
+@PageTitle("Personal Information")
 @Route(value = "hello", layout = MainLayout.class)
 @RouteAlias(value = "", layout = MainLayout.class)
-public class HelloWorldView extends HorizontalLayout {
-
-    private TextField name;
-    private Button sayHello;
+public class HelloWorldView extends VerticalLayout {
 
     public HelloWorldView() {
-        name = new TextField("Your name");
-        sayHello = new Button("Say hello");
-        sayHello.addClickListener(e -> {
-            Notification.show("Hello " + name.getValue());
-        });
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+        SelectedMapper selectedMapper = sqlSession.getMapper(SelectedMapper.class);
 
+        getStyle().set("text-align", "center");
         setMargin(true);
-        setVerticalComponentAlignment(Alignment.END, name, sayHello);
 
-        add(name, sayHello);
+        setSpacing(false);
+
+        add(new H2("Your total credit is : 23"));
+        add(new H2("Your current credit is: " + selectedMapper.getSelectedById(0).getCredit()));
+        sqlSession.close();
+
+        setSizeFull();
+        setJustifyContentMode(JustifyContentMode.CENTER);
+        setDefaultHorizontalComponentAlignment(Alignment.CENTER);
+        getStyle().set("text-align", "center");
     }
+
 
 }
